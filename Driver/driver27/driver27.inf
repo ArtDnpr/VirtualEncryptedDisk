@@ -1,0 +1,90 @@
+;
+; driver27.inf
+;
+
+[Version]
+Signature="$WINDOWS NT$"
+Class=Sample ; TODO: edit Class
+ClassGuid={78A1C341-4539-11d3-B88D-00C04FAD5171} ; TODO: edit ClassGuid
+Provider=%ManufacturerName%
+CatalogFile=driver27.cat
+DriverVer= ; TODO: set DriverVer in stampinf property pages
+
+[DestinationDirs]
+DefaultDestDir = 12
+
+; ================= Class section =====================
+
+[ClassInstall32]
+Addreg=SampleClassReg
+
+[SampleClassReg]
+HKR,,,0,%ClassName%
+HKR,,Icon,,-5
+
+[SourceDisksNames]
+1 = %DiskName%,,,""
+
+[SourceDisksFiles]
+driver27.sys  = 1,,
+
+;*****************************************
+; Install Section
+;*****************************************
+
+[Manufacturer]
+%ManufacturerName%=Standard,NT$ARCH$
+
+[Standard.NT$ARCH$]
+%driver27.DeviceDesc%=driver27_Device, Root\driver27 ; TODO: edit hw-id
+
+[driver27_Device.NT]
+CopyFiles=Drivers_Dir
+
+[Drivers_Dir]
+driver27.sys
+
+;-------------- Service installation
+[driver27_Device.NT.Services]
+AddService = driver27,%SPSVCINST_ASSOCSERVICE%, driver27_Service_Inst
+
+; -------------- driver27 driver install sections
+[driver27_Service_Inst]
+DisplayName    = %driver27.SVCDESC%
+ServiceType    = 1               ; SERVICE_KERNEL_DRIVER
+StartType      = 3               ; SERVICE_DEMAND_START
+ErrorControl   = 1               ; SERVICE_ERROR_NORMAL
+ServiceBinary  = %12%\driver27.sys
+
+;
+;--- driver27_Device Coinstaller installation ------
+;
+
+[DestinationDirs]
+driver27_Device_CoInstaller_CopyFiles = 11
+
+[driver27_Device.NT.CoInstallers]
+AddReg=driver27_Device_CoInstaller_AddReg
+CopyFiles=driver27_Device_CoInstaller_CopyFiles
+
+[driver27_Device_CoInstaller_AddReg]
+HKR,,CoInstallers32,0x00010000, "WdfCoInstaller$KMDFCOINSTALLERVERSION$.dll,WdfCoInstaller"
+
+[driver27_Device_CoInstaller_CopyFiles]
+WdfCoInstaller$KMDFCOINSTALLERVERSION$.dll
+
+[SourceDisksFiles]
+WdfCoInstaller$KMDFCOINSTALLERVERSION$.dll=1 ; make sure the number matches with SourceDisksNames
+
+[driver27_Device.NT.Wdf]
+KmdfService =  driver27, driver27_wdfsect
+[driver27_wdfsect]
+KmdfLibraryVersion = $KMDFVERSION$
+
+[Strings]
+SPSVCINST_ASSOCSERVICE= 0x00000002
+ManufacturerName="<Your manufacturer name>" ;TODO: Replace with your manufacturer name
+ClassName="Samples" ; TODO: edit ClassName
+DiskName = "driver27 Installation Disk"
+driver27.DeviceDesc = "driver27 Device"
+driver27.SVCDESC = "driver27 Service"
